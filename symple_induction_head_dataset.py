@@ -1,33 +1,43 @@
 import torch
 from torch.utils.data import Dataset
 import random
+from transformers import AutoTokenizer
 
-class InductionHeadDataset(Dataset):
-    def __init__(self, vocab_size=50, seq_len=30, dataset_size=1000, special_token=0):
-        self.vocab_size = vocab_size
+class TokenInductionHeadDataset(Dataset):
+    def __init__(self, tokenizer, seq_len=30, dataset_size=1000, special_token=None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
+        self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
+        
+        if special_token is None:
+            special_token = tokenizer.pad_token
+        
         self.special_token = special_token
+
         self.data = []
         self.targets = []
 
         self._generate_data()
 
     def _generate_data(self):
+      all_tokens = list(tokenizer.get_vocab().keys())
       for _ in range(self.dataset_size):
-        seq = torch.zeros(self.seq_len+1, dtype=torch.long)
-        for i in range(self.seq_len):
-          random_num = random.randint(0, self.vocab_size-1)                                      # random.randint(a,b) ritorna un numero random tra a e b inclusi
-          while random_num == self.special_token:                                                # evito di generare il token speciale per non creare ambiguità
-            random_num = random.randint(0, self.vocab_size-1)
-          seq[i] = random_num
-        pos = random.randint(0, self.seq_len-1)
-        seq[pos] = self.special_token
-        seq[-1] = self.special_token
-        target = seq[pos+1]
+        seq = []
 
-        self.data.append(seq.clone())
-        self.targets.append(target.clone())
+        for i in range(self.seq_len):
+          tok = random.choice(all_tokens)
+          while tok == self.special_token:
+            tok = random.choice(self.tokenizer)
+          seq.append(tok)
+
+        pos = random.randint(0, self.seq_len - 1)
+        seq[pos] = self.special_token
+        target = seq[pos + 1]
+
+        seq.append(self.special_token)
+
+        self.data.append(seq.copy())
+        self.targets.append(target)
 
     def __len__(self):
         return self.dataset_size
