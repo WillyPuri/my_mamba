@@ -8,10 +8,10 @@ class TokenInductionHeadDataset(Dataset):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
-        
+
         if special_token is None:
             special_token = tokenizer.pad_token
-        
+
         self.special_token = special_token
 
         self.data = []
@@ -20,21 +20,20 @@ class TokenInductionHeadDataset(Dataset):
         self._generate_data()
 
     def _generate_data(self):
-      all_tokens = list(tokenizer.get_vocab().keys())
+      all_tokens = list(self.tokenizer.get_vocab().keys())
       for _ in range(self.dataset_size):
         seq = []
 
         for i in range(self.seq_len):
           tok = random.choice(all_tokens)
           while tok == self.special_token:
-            tok = random.choice(self.tokenizer)
+            tok = random.choice(all_tokens)
           seq.append(tok)
-
+        seq.append(self.special_token)                                      #l'ultimo token lo eguaglio a quello speciale
+        
         pos = random.randint(0, self.seq_len - 1)
         seq[pos] = self.special_token
         target = seq[pos + 1]
-
-        seq.append(self.special_token)
 
         self.data.append(seq.copy())
         self.targets.append(target)
