@@ -4,13 +4,14 @@ import random
 from transformers import AutoTokenizer
 
 class TokenInductionHeadDataset(Dataset):
-    def __init__(self, tokenizer, seq_len=30, dataset_size=1000, special_token=None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
+    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token=None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
+        self.vocab_size = vocab_size
 
         if special_token is None:
-            special_token = tokenizer.pad_token
+            special_token = '+'
 
         self.special_token = special_token
 
@@ -20,7 +21,8 @@ class TokenInductionHeadDataset(Dataset):
         self._generate_data()
 
     def _generate_data(self):
-      all_tokens = list(self.tokenizer.get_vocab().keys())
+      all_tokens = list(self.tokenizer.get_vocab().keys())[:self.vocab_size]
+      print(all_tokens)
       for _ in range(self.dataset_size):
         seq = []
 
@@ -29,8 +31,8 @@ class TokenInductionHeadDataset(Dataset):
           while tok == self.special_token:
             tok = random.choice(all_tokens)
           seq.append(tok)
-        seq.append(self.special_token)                                      #l'ultimo token lo eguaglio a quello speciale
-        
+        seq.append(self.special_token)                                      #l'ultimo token è quello speciale
+
         pos = random.randint(0, self.seq_len - 1)
         seq[pos] = self.special_token
         target = seq[pos + 1]
