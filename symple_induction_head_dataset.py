@@ -22,7 +22,6 @@ class TokenInductionHeadDataset(Dataset):
 
     def _generate_data(self):
       all_tokens = list(self.tokenizer.get_vocab().keys())[:self.vocab_size]
-      print(all_tokens)
       for _ in range(self.dataset_size):
         seq = []
 
