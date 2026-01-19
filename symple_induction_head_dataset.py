@@ -20,7 +20,6 @@ class TokenInductionHeadDataset(Dataset):
 
     def _generate_data(self):
       all_tokens = list(self.tokenizer.get_vocab().keys())[:self.vocab_size]
-      print("Set of special tokens: ",all_tokens[:self.num_special_tokens])
       for _ in range(self.dataset_size):
         seq = []
         if self.special_token == "random":
