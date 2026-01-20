@@ -92,10 +92,9 @@ def From_Seq_To_Numb(tokenizer,dataset):                                        
 
   return data,targets
 
-def print_sequence(seq, special_token):
+def print_sequence(seq, special_token):  
     RED = "\033[91m"
     RESET = "\033[0m"
-
     colored_seq = []
     for tok in seq:
         if tok == special_token:
