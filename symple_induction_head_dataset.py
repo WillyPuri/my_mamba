@@ -19,7 +19,8 @@ class TokenInductionHeadDataset(Dataset):
         self._generate_data()
 
     def _generate_data(self):
-      all_tokens = list(self.tokenizer.get_vocab().keys())[:self.vocab_size]
+      all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size))
+
       for _ in range(self.dataset_size):
         seq = []
         if self.special_token == "random":
@@ -28,7 +29,7 @@ class TokenInductionHeadDataset(Dataset):
           special_tok = self.special_token
 
         for i in range(self.seq_len-1):                                   # seq_len-1 perchè l'ultimo token sarà quello speciale
-          tok = random.choice(all_tokens)                         
+          tok = random.choice(all_tokens)
           while tok == special_tok:                                # Evito che lo special token sia ripetuto più volte
             tok = random.choice(all_tokens)
           seq.append(tok)
@@ -59,7 +60,7 @@ def Make_Tokenizer(vocab_size):
   if vocab_size > len(vocab):
     extra = vocab_size - len(vocab)
     vocab.extend(str(i+10) for i in range(extra))                                  # Nel caso vocab_size sia troppo grande => aggiungo numeri al vocabolario
- 
+
   vocab = vocab[:vocab_size]
 
   tokenizer = Tokenizer(models.WordLevel())                                        # Creo il tokenizer più semplice possibile che converte una parola in un token
@@ -92,9 +93,6 @@ def From_Seq_To_Numb(tokenizer,dataset):                                        
   return data,targets
 
 def print_sequence(seq, special_token):
-    RED = "\033[91m"
-    RESET = "\033[0m"
-
     colored_seq = []
     for tok in seq:
         if tok == special_token:
