@@ -87,8 +87,8 @@ def From_Seq_To_Numb(tokenizer,dataset):                                        
   data = np.array(data)
   targets = np.array(targets)
 
-  data = torch.Tensor(data).int()
-  targets = torch.Tensor(targets).int()
+  data = torch.Tensor(data).double()
+  targets = torch.Tensor(targets).double()
 
   return data,targets
 
