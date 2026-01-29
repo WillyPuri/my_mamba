@@ -7,18 +7,25 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 import string
 
 class TokenInductionHeadDataset(Dataset):
-    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token="A", num_special_tokens = 1):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
+    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token="A", num_special_tokens = 1, spacing = 1):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
         self.vocab_size = vocab_size
         self.special_token = special_token
         self.num_special_tokens = num_special_tokens
+        self.spacing = spacing
         self.data = []
         self.targets = []
         self._generate_data()
 
     def _generate_data(self):
+      if self.num_special_tokens > self.vocab_size:
+        raise ValueError("num_special_tokens deve essere minore o uguale al numero di token nel vocabolario")
+
+      if self.seq_len <= self.spacing:
+        raise ValueError("seq_len deve essere maggiore di spacing")
+        
       all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size))
 
       for _ in range(self.dataset_size):
@@ -35,9 +42,9 @@ class TokenInductionHeadDataset(Dataset):
           seq.append(tok)
         seq.append(special_tok)                                    # l'ultimo token è quello speciale
 
-        pos = random.randint(0, self.seq_len - 2)
+        pos = random.randint(0, self.seq_len - (1+self.spacing))
         seq[pos] = special_tok
-        target = seq[pos + 1]
+        target = seq[pos + self.spacing]
 
         self.data.append(seq.copy())
         self.targets.append(target)
@@ -92,13 +99,22 @@ def From_Seq_To_Numb(tokenizer,dataset):                                        
 
   return data,targets
 
-def print_sequence(seq, special_token):  
+def print_sequence(seq, special_token, spacing):
     RED = "\033[91m"
+    GREEN = "\033[92m"
     RESET = "\033[0m"
-    colored_seq = []
-    for tok in seq:
+
+    colored_seq = list(seq)
+
+    for i, tok in enumerate(seq):
         if tok == special_token:
-            colored_seq.append(f"{RED}{tok}{RESET}")
-        else:
-            colored_seq.append(tok)
+
+            colored_seq[i] = f"{RED}{tok}{RESET}"
+            target_idx = i + spacing
+            
+            if 0 <= target_idx < len(seq):
+                colored_seq[target_idx] = f"{GREEN}{colored_seq[target_idx]}{RESET}"
+                target_index = target_idx
+
     print(" ".join(colored_seq))
+    print(f'Target: {GREEN}{colored_seq[target_index]}{RESET}')
