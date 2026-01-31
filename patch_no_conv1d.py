@@ -44,6 +44,7 @@ def patched_cuda_kernels_forward(
         pass
 
     else:
+        print('pippo')
         hidden_states, gate = projected_states.chunk(2, dim=1)
 
         if attention_mask is not None:
