@@ -1,4 +1,6 @@
 import torch
+import transformers
+from transformers.models.mamba.modeling_mamba import MambaMixer, MambaCache
 from causal_conv1d import causal_conv1d_fn, causal_conv1d_update
 import transformers.models.mamba.modeling_mamba as mm
 
