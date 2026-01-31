@@ -8,7 +8,7 @@ mamba_inner_fn = mm.mamba_inner_fn
 selective_scan_fn = mm.selective_scan_fn
 selective_state_update = mm.selective_state_update
 
-def patched_cuda_kernels_forward(
+def patched_no_conv1d_cuda(
     self,
     hidden_states: torch.Tensor,
     cache_params: MambaCache | None = None,
