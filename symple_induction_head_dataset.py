@@ -25,7 +25,7 @@ class TokenInductionHeadDataset(Dataset):
 
       if self.seq_len <= self.spacing:
         raise ValueError("seq_len deve essere maggiore di spacing")
-        
+
       all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size))
 
       for _ in range(self.dataset_size):
@@ -99,22 +99,29 @@ def From_Seq_To_Numb(tokenizer,dataset):                                        
 
   return data,targets
 
-def print_sequence(seq, special_token, spacing):
+def print_sequence(seq, special_token, spacing, prediction=None):
     RED = "\033[91m"
     GREEN = "\033[92m"
     RESET = "\033[0m"
 
     colored_seq = list(seq)
+    target_index = None
 
     for i, tok in enumerate(seq):
         if tok == special_token:
-
             colored_seq[i] = f"{RED}{tok}{RESET}"
             target_idx = i + spacing
-            
+
             if 0 <= target_idx < len(seq):
                 colored_seq[target_idx] = f"{GREEN}{colored_seq[target_idx]}{RESET}"
                 target_index = target_idx
 
     print(" ".join(colored_seq))
-    print(f'Target: {GREEN}{colored_seq[target_index]}{RESET}')
+
+    if isinstance(prediction, str) and target_index is not None:
+      if prediction == seq[target_index]:
+        print(f"Target: {GREEN}{colored_seq[target_index]}{RESET}  Prediction: {GREEN}{prediction}{RESET}  Result: {GREEN}True{RESET}")
+      else:
+        print(f"Target: {GREEN}{colored_seq[target_index]}{RESET}  Prediction: {RED}{prediction}{RESET}  Result: {RED}False{RESET}")
+    else:
+      print(f'Target: {GREEN}{colored_seq[target_index]}{RESET}')
