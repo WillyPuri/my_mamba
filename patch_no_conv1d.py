@@ -1,3 +1,4 @@
+import torch
 from causal_conv1d import causal_conv1d_fn, causal_conv1d_update
 import transformers.models.mamba.modeling_mamba as mm
 
