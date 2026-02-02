@@ -13,7 +13,7 @@ if torch.cuda.is_available():
 from typing import Optional
 import itertools
 import os
-import shutil
+
 
 def patched_no_conv1d_cuda(
     self,
