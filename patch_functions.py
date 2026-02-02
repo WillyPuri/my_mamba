@@ -128,6 +128,9 @@ def patched_no_conv1d_cuda(
         contextualized_states = self.out_proj(scan_outputs.transpose(1, 2))
     return contextualized_states
 
+token_id = -1
+temp = None
+
 def patched_slow_save(self, input_states, cache_params: Optional[MambaCache]=None, cache_position:Optional[torch.LongTensor]=None, attention_mask: Optional[torch.LongTensor] = None):
         batch_size, seq_len, _ = input_states.shape
         dtype = input_states.dtype
