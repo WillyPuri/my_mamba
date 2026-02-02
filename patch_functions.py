@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import transformers
 from transformers.models.mamba.modeling_mamba import MambaMixer, MambaCache
 if torch.cuda.is_available():
