@@ -1,17 +1,18 @@
 import torch
 import transformers
 from transformers.models.mamba.modeling_mamba import MambaMixer, MambaCache
-from causal_conv1d import causal_conv1d_fn, causal_conv1d_update
-import transformers.models.mamba.modeling_mamba as mm
+if torch.cuda.is_available():
+    from causal_conv1d import causal_conv1d_fn, causal_conv1d_update
+    import transformers.models.mamba.modeling_mamba as mm
+
+    mamba_inner_fn = mm.mamba_inner_fn
+    selective_scan_fn = mm.selective_scan_fn
+    selective_state_update = mm.selective_state_update
 
 from typing import Optional
 import itertools
 import os
 import shutil
-
-mamba_inner_fn = mm.mamba_inner_fn
-selective_scan_fn = mm.selective_scan_fn
-selective_state_update = mm.selective_state_update
 
 def patched_no_conv1d_cuda(
     self,
