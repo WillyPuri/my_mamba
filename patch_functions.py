@@ -130,6 +130,7 @@ def patched_no_conv1d_cuda(
 
 token_id = -1
 temp = None
+save_dir = "/content/M_matrices/"
 
 def patched_slow_save(self, input_states, cache_params: Optional[MambaCache]=None, cache_position:Optional[torch.LongTensor]=None, attention_mask: Optional[torch.LongTensor] = None):
         batch_size, seq_len, _ = input_states.shape
