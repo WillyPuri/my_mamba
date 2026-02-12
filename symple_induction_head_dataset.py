@@ -7,24 +7,29 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 import string
 
 class TokenInductionHeadDataset(Dataset):
-    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token="A", num_special_tokens = 1, spacing = 1):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
+    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token="A", num_special_tokens = None, spacing = None, fix_indx = None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
         self.vocab_size = vocab_size
         self.special_token = special_token
-        self.num_special_tokens = num_special_tokens
-        self.spacing = spacing
+        self.num_special_tokens = 1 if num_special_tokens is None else num_special_tokens
+        self.spacing = 1 if spacing is None else spacing
+        self.fix_indx = fix_indx
         self.data = []
         self.targets = []
         self._generate_data()
 
     def _generate_data(self):
-      if self.num_special_tokens > self.vocab_size:
-        raise ValueError("num_special_tokens deve essere minore o uguale al numero di token nel vocabolario")
+      if self.num_special_tokens > self.vocab_size or self.num_special_tokens<= 0:
+        raise ValueError("Valore di num_special_tokens non valido")
 
-      if self.seq_len <= self.spacing:
-        raise ValueError("seq_len deve essere maggiore di spacing")
+      if self.spacing > self.seq_len-1 or self.spacing <= 0:
+        raise ValueError("Valore di spacing non valido")
+
+      if self.fix_indx is not None and (self.fix_indx > self.seq_len - self.spacing or self.fix_indx<0):
+          raise ValueError("Valore di fix_indx non valido")
+
 
       all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size))
 
@@ -42,7 +47,11 @@ class TokenInductionHeadDataset(Dataset):
           seq.append(tok)
         seq.append(special_tok)                                    # l'ultimo token è quello speciale
 
-        pos = random.randint(0, self.seq_len - (1+self.spacing))
+        if self.fix_indx is not None:
+          pos = self.fix_indx
+        else:
+          pos = random.randint(0, self.seq_len - (1+self.spacing))
+
         seq[pos] = special_tok
         target = seq[pos + self.spacing]
 
