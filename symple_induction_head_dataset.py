@@ -7,7 +7,7 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 import string
 
 class TokenInductionHeadDataset(Dataset):
-    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token="A", num_special_tokens = None, spacing = None, fix_indx = None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
+    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token=None, num_special_tokens = None, spacing = None, fix_indx = None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
@@ -35,10 +35,11 @@ class TokenInductionHeadDataset(Dataset):
 
       for _ in range(self.dataset_size):
         seq = []
-        if self.special_token == "random":
-          special_tok = random.choice(all_tokens[:self.num_special_tokens])  # Non tutto l'alfabeto è utilizzabile come special tokens
-        else:
+        if self.special_token is not None and self.num_special_tokens == 1:
           special_tok = self.special_token
+        else:
+          special_tok = random.choice(all_tokens[:self.num_special_tokens])  # Non tutto l'alfabeto è utilizzabile come special tokens
+          
 
         for i in range(self.seq_len-1):                                   # seq_len-1 perchè l'ultimo token sarà quello speciale
           tok = random.choice(all_tokens)
