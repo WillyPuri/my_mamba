@@ -32,7 +32,6 @@ class TokenInductionHeadDataset(Dataset):
           raise ValueError("Valore di fix_indx non valido")
 
       all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size+self.num_special_tokens))
-      print(all_tokens)
 
       for _ in range(self.dataset_size):
         seq = []
