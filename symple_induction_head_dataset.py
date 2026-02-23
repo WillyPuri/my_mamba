@@ -7,8 +7,7 @@ from tokenizers import Tokenizer, models, trainers, pre_tokenizers
 import string
 
 class TokenInductionHeadDataset(Dataset):
-    def __init__(self, tokenizer, seq_len=30, dataset_size=1000,vocab_size=100, special_token=None, num_special_tokens = None, spacing = None, fix_indx = None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
-        self.tokenizer = tokenizer
+    def __init__(self, seq_len=30, dataset_size=1000,vocab_size=100, special_token=None, num_special_tokens = None, spacing = None, fix_indx = None, sep_vocab = None):                 # Volendo si può usare un token (formato stringa) presente nel dizionario di tokenizer
         self.seq_len = seq_len
         self.dataset_size = dataset_size
         self.vocab_size = vocab_size
@@ -16,6 +15,8 @@ class TokenInductionHeadDataset(Dataset):
         self.num_special_tokens = 1 if num_special_tokens is None else num_special_tokens
         self.spacing = 1 if spacing is None else spacing
         self.fix_indx = fix_indx
+        self.sep_vocab = sep_vocab
+        self.tokenizer = Make_Tokenizer(self.vocab_size + self.num_special_tokens)
         self.data = []
         self.targets = []
         self._generate_data()
@@ -30,21 +31,23 @@ class TokenInductionHeadDataset(Dataset):
       if self.fix_indx is not None and (self.fix_indx > self.seq_len - self.spacing or self.fix_indx<0):
           raise ValueError("Valore di fix_indx non valido")
 
-
-      all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size))
+      all_tokens = list(self.tokenizer.id_to_token(i) for i in range(self.vocab_size+self.num_special_tokens))
+      print(all_tokens)
 
       for _ in range(self.dataset_size):
         seq = []
         if self.special_token is not None and self.num_special_tokens == 1:
           special_tok = self.special_token
+        elif self.sep_vocab is not None and self.sep_vocab == True:
+          special_tok = random.choice(all_tokens[self.vocab_size:])  # se la variabile sep_vocab è true allora uso un vocabolario separato per gli special tokens
         else:
           special_tok = random.choice(all_tokens[:self.num_special_tokens])  # Non tutto l'alfabeto è utilizzabile come special tokens
-          
+
 
         for i in range(self.seq_len-1):                                   # seq_len-1 perchè l'ultimo token sarà quello speciale
-          tok = random.choice(all_tokens)
+          tok = random.choice(all_tokens[:self.vocab_size])
           while tok == special_tok:                                # Evito che lo special token sia ripetuto più volte
-            tok = random.choice(all_tokens)
+            tok = random.choice(all_tokens[:self.vocab_size])
           seq.append(tok)
         seq.append(special_tok)                                    # l'ultimo token è quello speciale
 
